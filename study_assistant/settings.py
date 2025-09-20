@@ -88,6 +88,7 @@ DATABASES = {
     "default": dj_database_url.config(
         default=f"sqlite:///{BASE_DIR}/db.sqlite3",
         conn_max_age=600,
+        dj_database_url='postgresql://study_assistant_buzp_user:c8zwlltVGGhI5CWFj58syg5MqXPV38Gv@dpg-d37bpq7diees73a4t19g-a.oregon-postgres.render.com/study_assistant_buzp',
     )
 }
 
