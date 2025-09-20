@@ -2,12 +2,18 @@ services:
   - type: web
     name: study-ai-assistant
     env: python
-    rootDirectory: study-ai-assistant
     buildCommand: pip install -r requirements.txt && python manage.py collectstatic --noinput
-    startCommand: gunicorn your_project_name.wsgi
+    startCommand: gunicorn study_ai_assistant.wsgi:application --bind 0.0.0.0:$PORT
     envVars:
-      - key: DJANGO_SETTINGS_MODULE
-        value: your_project_name.settings
-      - key: PYTHON_VERSION
-        value: 3.13.3
+      - key: 1X_sSXNUePqtGc4A2bfPGUel_G5qtLBGTepeBq_dZ9FQNKJRHtF3z6B2aAyJf8fRWOk
+        sync: false
+      - key: DEBUG
+        value: False
+      - key: postgresql://study_assistant_buzp_user:c8zwlltVGGhI5CWFj58syg5MqXPV38Gv@dpg-d37bpq7diees73a4t19g-a/study_assistant_buzp
+        fromDatabase:
+          name: study-ai-db
+          property: connectionString
+databases:
+  - name: study-ai-db
+    plan: free
 
