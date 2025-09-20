@@ -1,0 +1,348 @@
+<!-- templates/base/study_topics.html -->
+{% extends 'base.html' %}
+
+{% block title %}Study Topics - Student AI Assistant{% endblock %}
+
+{% block extra_css %}
+<style>
+    .topic-card {
+        transition: all 0.3s ease;
+        cursor: pointer;
+        border: 1px solid #e0e0e0;
+        background: linear-gradient(135deg, #fff 0%, #f8f9fa 100%);
+    }
+    
+    .topic-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        border-color: var(--primary-color);
+    }
+    
+    .topic-icon {
+        font-size: 4rem;
+        margin-bottom: 20px;
+        display: block;
+    }
+    
+    .topic-suggestions {
+        background: rgba(74, 144, 226, 0.05);
+        border-left: 4px solid var(--primary-color);
+        padding: 15px;
+        margin-top: 15px;
+        border-radius: 0 8px 8px 0;
+    }
+    
+    .suggestion-item {
+        display: flex;
+        align-items: center;
+        margin-bottom: 8px;
+        font-size: 0.9rem;
+    }
+    
+    .suggestion-item:last-child {
+        margin-bottom: 0;
+    }
+    
+    .suggestion-item::before {
+        content: '💡';
+        margin-right: 8px;
+        font-size: 1rem;
+    }
+    
+    .hero-topics {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 60px 0;
+        text-align: center;
+        margin-bottom: 40px;
+    }
+    
+    .quick-start {
+        background: var(--secondary-color);
+        padding: 40px 0;
+        border-top: 1px solid #e0e0e0;
+    }
+    
+    .subject-filter {
+        margin-bottom: 30px;
+    }
+    
+    .filter-btn {
+        margin: 5px;
+        border-radius: 25px;
+        border: 2px solid #e0e0e0;
+        background: white;
+        color: #6c757d;
+        transition: all 0.2s ease;
+    }
+    
+    .filter-btn.active,
+    .filter-btn:hover {
+        border-color: var(--primary-color);
+        background: var(--primary-color);
+        color: white;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero-topics">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <h1 class="display-4 fw-bold mb-4">Explore Study Topics</h1>
+                <p class="lead mb-4">Choose a subject to get personalized study help and tips</p>
+                <div class="row text-center">
+                    <div class="col-md-4">
+                        <h3 class="fw-bold">{{ topics_with_suggestions|length }}</h3>
+                        <p>Study Topics</p>
+                    </div>
+                    <div class="col-md-4">
+                        <h3 class="fw-bold">∞</h3>
+                        <p>Study Tips</p>
+                    </div>
+                    <div class="col-md-4">
+                        <h3 class="fw-bold">24/7</h3>
+                        <p>AI Assistant</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<div class="container py-4">
+    <!-- Subject Filter -->
+    <div class="subject-filter text-center">
+        <button class="btn filter-btn active" data-filter="all">All Topics</button>
+        <button class="btn filter-btn" data-filter="stem">STEM</button>
+        <button class="btn filter-btn" data-filter="humanities">Humanities</button>
+        <button class="btn filter-btn" data-filter="languages">Languages</button>
+        <button class="btn filter-btn" data-filter="skills">Study Skills</button>
+    </div>
+
+    <!-- Topics Grid -->
+    <div class="row g-4" id="topicsGrid">
+        {% for item in topics_with_suggestions %}
+        <div class="col-md-6 col-lg-4 topic-item" 
+             data-category="{% if item.topic.name in 'Mathematics,Science,Computer Science' %}stem{% elif item.topic.name in 'History,English,Arts' %}humanities{% elif item.topic.name in 'Languages' %}languages{% elif item.topic.name in 'Study Skills' %}skills{% else %}other{% endif %}">
+            <div class="card topic-card h-100" onclick="startTopicChat('{{ item.topic.name }}')">
+                <div class="card-body text-center">
+                    <span class="topic-icon">{{ item.topic.icon }}</span>
+                    <h4 class="card-title fw-bold">{{ item.topic.name }}</h4>
+                    <p class="card-text text-muted">{{ item.topic.description }}</p>
+                    
+                    <!-- Study Suggestions -->
+                    <div class="topic-suggestions text-start">
+                        <h6 class="fw-bold mb-2">
+                            <i class="fas fa-lightbulb text-primary"></i> Study Tips:
+                        </h6>
+                        {% for suggestion in item.suggestions %}
+                        <div class="suggestion-item">{{ suggestion }}</div>
+                        {% endfor %}
+                    </div>
+                    
+                    <div class="mt-3">
+                        <button class="btn btn-primary btn-sm" onclick="event.stopPropagation(); startTopicChat('{{ item.topic.name }}')">
+                            <i class="fas fa-comments"></i> Start Learning
+                        </button>
+                        <button class="btn btn-outline-secondary btn-sm ms-2" onclick="event.stopPropagation(); getMoreTips('{{ item.topic.name }}')">
+                            <i class="fas fa-lightbulb"></i> More Tips
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12 text-center py-5">
+            <i class="fas fa-book" style="font-size: 4rem; color: #e0e0e0;"></i>
+            <h4 class="mt-3 text-muted">No Study Topics Available</h4>
+            <p class="text-muted">Study topics will appear here once they're added by an administrator.</p>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- Quick Start Section -->
+<section class="quick-start">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8 text-center">
+                <h2 class="fw-bold mb-4">Need Help Getting Started?</h2>
+                <p class="lead mb-4">Not sure which topic to choose? Start with these popular study areas:</p>
+                
+                <div class="row g-3">
+                    <div class="col-md-3 col-sm-6">
+                        <button class="btn btn-outline-primary w-100" onclick="startTopicChat('homework help')">
+                            📝 Homework Help
+                        </button>
+                    </div>
+                    <div class="col-md-3 col-sm-6">
+                        <button class="btn btn-outline-primary w-100" onclick="startTopicChat('test preparation')">
+                            📚 Test Prep
+                        </button>
+                    </div>
+                    <div class="col-md-3 col-sm-6">
+                        <button class="btn btn-outline-primary w-100" onclick="startTopicChat('study techniques')">
+                            🎯 Study Tips
+                        </button>
+                    </div>
+                    <div class="col-md-3 col-sm-6">
+                        <button class="btn btn-outline-primary w-100" onclick="startTopicChat('general questions')">
+                            💭 Ask Anything
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="mt-4">
+                    <a href="{% url 'new_chat' %}" class="btn btn-primary btn-lg">
+                        <i class="fas fa-robot"></i> Start Free Chat
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Tips Modal -->
+<div class="modal fade" id="tipsModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-lightbulb text-primary"></i>
+                    <span id="modalTopicName">Study Tips</span>
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div id="tipsContent">
+                    <div class="text-center">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                        <p class="mt-2">Loading study tips...</p>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" id="startChatFromModal">
+                    <i class="fas fa-comments"></i> Start Chat Session
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+let currentTopic = '';
+
+// Start chat with specific topic
+function startTopicChat(topicName) {
+    // Store topic for potential use
+    sessionStorage.setItem('selectedTopic', topicName);
+    
+    // Redirect to new chat with topic parameter
+    window.location.href = `{% url 'new_chat' %}?topic=${encodeURIComponent(topicName)}`;
+}
+
+// Get more tips for a topic
+async function getMoreTips(topicName) {
+    currentTopic = topicName;
+    document.getElementById('modalTopicName').textContent = `${topicName} Study Tips`;
+    
+    // Show modal
+    const modal = new bootstrap.Modal(document.getElementById('tipsModal'));
+    modal.show();
+    
+    try {
+        const response = await fetch(`{% url 'get_study_tips' %}?subject=${encodeURIComponent(topicName)}`);
+        const data = await response.json();
+        
+        if (data.success) {
+            displayTips(data.tips, topicName);
+        } else {
+            displayError('Failed to load study tips');
+        }
+    } catch (error) {
+        displayError('Error loading study tips');
+    }
+}
+
+// Display tips in modal
+function displayTips(tips, topicName) {
+    const content = document.getElementById('tipsContent');
+    let html = `
+        <div class="mb-3">
+            <h6 class="text-primary">Effective ${topicName} Study Strategies:</h6>
+        </div>
+    `;
+    
+    tips.forEach((tip, index) => {
+        html += `
+            <div class="card mb-2">
+                <div class="card-body py-2">
+                    <div class="d-flex align-items-start">
+                        <span class="badge bg-primary me-2 mt-1">${index + 1}</span>
+                        <span>${tip}</span>
+                    </div>
+                </div>
+            </div>
+        `;
+    });
+    
+    html += `
+        <div class="mt-3 p-3 bg-light rounded">
+            <small class="text-muted">
+                <i class="fas fa-info-circle"></i>
+                Want personalized help with ${topicName}? Start a chat session for interactive assistance!
+            </small>
+        </div>
+    `;
+    
+    content.innerHTML = html;
+}
+
+// Display error in modal
+function displayError(message) {
+    document.getElementById('tipsContent').innerHTML = `
+        <div class="alert alert-warning">
+            <i class="fas fa-exclamation-triangle"></i>
+            ${message}. Please try again later.
+        </div>
+    `;
+}
+
+// Start chat from modal
+document.getElementById('startChatFromModal').addEventListener('click', function() {
+    if (currentTopic) {
+        startTopicChat(currentTopic);
+    }
+});
+
+// Filter functionality
+document.querySelectorAll('.filter-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+        // Update active button
+        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+        this.classList.add('active');
+        
+        const filter = this.getAttribute('data-filter');
+        const topics = document.querySelectorAll('.topic-item');
+        
+        topics.forEach(topic => {
+            if (filter === 'all' || topic.getAttribute('data-category') === filter) {
+                topic.style.display = 'block';
+                topic.style.animation = 'fadeIn 0.5s';
+            } else {
+                topic.style.display = 'none';
+            }
+        });
+    });
+});
+</script>
+{% endblock %}

@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Student AI Assistant{%endblock%}</title>
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.1.3/css/bootstrap.min.css" rel="stylesheet">
+    <!--Font Awesome Icons-->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+
+    <style>
+        :root {
+            /* Light theme variables */
+            --bg-primary: #ffffff;
+            --bg-secondary: #f8f9fa;
+            --bg-tertiary: #e9ecef;
+            --text-primary: #212529;
+            --text-secondary: #6c757d;
+            --text-accent: #0d6efd;
+            --border-color: #dee2e6;
+            --shadow: rgba(0, 0, 0, 0.1);
+            --card-bg: #ffffff;
+            --hover-bg: #f8f9fa;
+            --success: #198754;
+            --warning: #ffc107;
+            --danger: #dc3545;
+        }
+
+        [data-theme="dark"] {
+            /* Dark theme variables */
+            --bg-primary: #121212;
+            --bg-secondary: #1e1e1e;
+            --bg-tertiary: #2d2d2d;
+            --text-primary: #ffffff;
+            --text-secondary: #b3b3b3;
+            --text-accent: #4dabf7;
+            --border-color: #404040;
+            --shadow: rgba(0, 0, 0, 0.3);
+            --card-bg: #1e1e1e;
+            --hover-bg: #2d2d2d;
+            --success: #51cf66;
+            --warning: #ffd43b;
+            --danger: #ff6b6b;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI',  Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            transition: background-color 0.3s ease, color 0.3s ease;
+            line-height: 1.6;
+
+        }
+
+        .navbar-brand {
+            font-weight: 600;
+            color: var(--text-primary) !important;
+
+        }
+
+        .btn-primary {
+            background-color: var(--text-primary);
+            border-color: var(--text-primary);
+        }
+
+        .btn-primary:hover {
+            background-color: #357abd;
+            border-color: #357abd;
+        }
+
+        .theme-toggle {
+            background: var(--bg-tertiary);
+            border: 2px solid var(--border-color);
+            border-radius: 50px;
+            padding: 0.5rem 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--text-primary);
+        }
+
+        .theme-toggle:hover {
+            background: var(--hover-bg);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px var(--shadow);
+        }
+
+        .card {
+            border: none;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+
+        .chat-message {
+            margin-bottom: 15px;
+            animation: fadeIn 0.3s ease-in;
+        }
+
+        .user-message {
+            text-align: right;
+        }
+
+        .user-message .message-bubble {
+            background-color: var(--bg-primary);
+            color: white;
+            border-radius: 18px 18px 5px 18px;
+            display: inline-block;
+            padding: 12px 18px;
+            max-width: 70%;
+            word-wrap: break-word;
+        }
+
+        .ai-message {
+            text-align: left;
+        }
+
+        .ai-message .message-bubble {
+            background-color: white;
+            color: var(--dark-color);
+            border: 1px solid #e0e0e0;
+            border-radius: 18px 18px 18px 5px;
+            display: inline-block;
+            padding: 12px 18px;
+            max-width: 70%;
+            word-wrap: break-word;
+        }
+
+        .timestamp {
+            font-size: 0.75rem;
+            color: #6c757d;
+            margin-top: 5px;
+        }
+
+        @keyframes fadeIn {      /* define animations by describing what styles should look like at different stages of the animation.*/       
+            from { opacity: 0; transform: translateY(10px);}
+            to { opacity: 1; transform: translateY(0);}
+        }
+
+        .loading-dots {
+            display: inline-block;
+        }
+
+        .loading-dots:after {
+            content: '...';
+            animation: dots 1.5s steps(4, end) infinite;
+        }
+
+        @keyframes dots {
+            0%, 20% {content: '';}
+            40% {content: '.';}
+            60% {content: '..';}
+            80% , 100% {content: '...';}
+        }
+
+        .sidebar {
+            background-color: white;
+            border-right: 1px solid #e0e0e0;
+            height: 100vh;
+            overflow-y: auto;
+        }
+
+        .chat-input {
+            border-radius: 25px;
+            border: 1px solid #e0e0e0;
+            padding: 12px 20px;
+        }
+
+        .chat-input:focus {
+            border-color: var(--text-primary);
+            box-shadow: 0 0 0 0.2rem rgba(74, 144, 226, 0.25);
+        }
+
+        .topic-card {
+            transition: transform 0.2s ease;
+            cursor: pointer;
+        }
+
+        .topic-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .hero-section {
+            background: linear-gradient(135deg, #4a90e2 0%, #357abd 100%);
+            color: white;
+            padding: 80px 0;
+            text-align: center;
+        }
+
+        .feature-icon {
+            font-size: 3rem;
+            margin-bottom: 20px;
+            color: var(--text-primary);
+        }  
+        
+         /* Theme Transition */
+        * {
+            transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+        }
+    </style>
+    {% block extra-css %}{% endblock %}
+</head>
+<body>
+    <!--Navigation-->
+    <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
+        <div class="container">
+            <a class="navbar-brand" href="{% url 'home' %}">
+                <i class="fas fa-user-graduate"></i> StudyAI Assistant
+            </a>
+            <div class="nav-controls">
+                <button class="theme-toggle" onclick="toggleTheme()">
+                    <i class="theme-icon fas fa-moon" id="theme-icon"></i>
+                    <span id="theme-text">Dark Mode</span>
+                </button>
+            </div>
+            
+
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ml-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'home' %}">Home</a>
+                    </li>
+                    {% if user.is_authenticated %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'new_chat' %}">Chat</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'study_topics'%}">Study Topics</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'chat_history' %}">History</a>
+                    </li>
+                    {% endif %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'about' %}">About</a>
+                    </li>
+                </ul>
+
+                <ul class="navbar-nav">
+                    {% if user.is_authenticated %}
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-user"></i> {{ user.username }}
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="{% url 'chat_history' %}">My Chats</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="{% url 'logout' %}">Logout</a></li>
+                        </ul>
+                    </li>
+                    {% else %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'login' %}">Login</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link btn btn-primary text-white px-3 ms-2" href="{% url 'signup' %}">Sign Up</a>
+                    </li>
+            
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!--Messages-->
+    {% if messages %}
+    <div class="container mt-3">
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!--Main Content-->
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+
+    <script>
+        // Get CSRF token for Django
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+
+        // Initialize theme
+        function initTheme() {
+            const currentTheme = '{{ current_theme }}';
+            const themeIcon = document.getElementById('theme-icon');
+            const themeText = document.getElementById('theme-text');
+            
+            if (currentTheme === 'dark') {
+                themeIcon.className = 'theme-icon fas fa-sun';
+                themeText.textContent = 'Light Mode';
+            } else {
+                themeIcon.className = 'theme-icon fas fa-moon';
+                themeText.textContent = 'Dark Mode';
+            }
+        }
+
+        // Toggle theme function
+        async function toggleTheme() {
+            const currentTheme = document.documentElement.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            const themeIcon = document.getElementById('theme-icon');
+            const themeText = document.getElementById('theme-text');
+            
+            // Show loading state
+            themeIcon.className = 'theme-icon fas fa-spinner loading';
+            themeText.textContent = 'Switching...';
+            
+            try {
+                const response = await fetch('/toggle-theme/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': getCookie('csrftoken')
+                    },
+                    body: JSON.stringify({theme: newTheme})
+                });
+                
+                const data = await response.json();
+                
+                if (data.status === 'success') {
+                    // Update theme
+                    document.documentElement.setAttribute('data-theme', newTheme);
+                    
+                    // Update button
+                    if (newTheme === 'dark') {
+                        themeIcon.className = 'theme-icon fas fa-sun';
+                        themeText.textContent = 'Light Mode';
+                    } else {
+                        themeIcon.className = 'theme-icon fas fa-moon';
+                        themeText.textContent = 'Dark Mode';
+                    }
+                    
+                    // Add smooth transition effect
+                    document.body.style.transition = 'all 0.3s ease';
+                    
+                } else {
+                    throw new Error('Theme toggle failed');
+                }
+            } catch (error) {
+                console.error('Error toggling theme:', error);
+                // Reset button on error
+                initTheme();
+            }
+        }
+
+        // Initialize theme on page load
+        document.addEventListener('DOMContentLoaded', initTheme);
+    </script>
+        
+    <!--Footer-->
+    <footer class="bg-dark text-white text-center py-3 mt-5">
+        <div class="container">
+            <p>&copy; 2025 StudyAI Assistant. Made with ❤️ for students. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <!--Bootstrap JS-->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.1.3/js/bootstrap.bundle.min.js"></script>
+
+    {% block extra_js %}{% endblock %}
+
+</body>
+</html>
+

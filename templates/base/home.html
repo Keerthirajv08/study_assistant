@@ -1,0 +1,179 @@
+{% extends 'base.html' %}
+
+{% block title %}Home - StudyAI Assistant{% endblock %}
+
+{% block content %}
+<!--Hero section-->
+<section class="hero-section">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8 text-center">
+                <h1 class="display-4 fw-bold mb-4">Your Personal Study Assistant</h1>
+                <p class="lead mb-4">Get instant help with homework, study tips, and educational guidance powered by AI</p>
+                {% if user.is_authenticated %}
+                    <a href="{% url 'new_chat' %}" class="btn btn-light btn-lg me-3">
+                        <i class="fas fa-comments"></i>Start Studying
+                    </a>
+                    <a href="{% url 'study_topics' %}" class="btn btn-outline-light btn-lg">
+                        <i class="fas fa-book"></i>Browse Topics
+                    </a>
+                {% else %}
+                    <a href="{% url 'signup' %}" class="btn btn-light btn-lg me-3">
+                        <i class="fas fa-user-plus"></i>Get Started Free
+                    </a>
+                    <a href="{% url 'login' %}" class="btn btn-outline-light btn-lg">
+                        <i class="fas fa-sign-in-alt"></i>Login
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</section>
+
+<!--Features Section-->
+<section class="py-5">      <!--py-5 is padding top and bottom vertical axis-->
+    <div class="container">
+        <div class="row text-center mb-5">
+            <div class="col-12">
+                <h2 class="display-5 fw-bold">How StudyAI Helps You Learn</h2>
+                <p class="lead text-muted">Discover the features that make studying easier and more effective</p>
+            </div>
+        </div>
+
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="card h-100 text-center p-4">
+                    <div class="feature-icon">
+                        <i class="fas fa-robot"></i>
+                    </div>
+                    <h4>AI-Powered Answers</h4>
+                    <p class="text-muted">Get Instant, accurate answers to your study questions across all subjects</p>
+                </div>
+            </div>
+            
+            
+
+                <div class="col-md-4">
+                    <div class="card h-100 text-center p-4">
+                        <div class="feature-icon">
+                            <i class="fas fa-lightbulb"></i>
+                        </div>
+                        <h4>Study Tips & Strategies</h4>
+                        <p class="text-muted">Learn effective study techniques tailored to your learning style and subjects</p>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="card h-100 text-center p-4">
+                        <div class="feature-icon">
+                            <i class="fas fa-history"></i>
+                        </div>
+                        <h4>Chat History</h4>
+                        <p class="text-muted">Keep track of your learning journey with saved conversations and progress</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!--Study Topics Section-->
+{% if study_topics %}
+<section class="py-5 bg-light">
+    <div class="container">
+        <div class="row text-center mb-5">
+            <div class="col-12">
+                <h2 class="display-6 fw-bold">Popular Study Topics</h2>
+                <p class="lead text-muted ">Click on any topic to get specialized help</p>
+            </div>
+        </div>
+
+        <div class="row g-4">
+            {% for topic in study_topics %}
+            <div class="col-md-6 col-lg-3">
+                <div class="card topic-card h-100 text-center p-4" onclick="{% if user.is_authenticated %}startTopicChat('{{ topic.name }}') {% else %}location.href='{% url 'login' %}'{% endif %}">
+                    <div class="mb-3" style="font-size: 3rem;">{{ topic.icon }}</div>
+                    <h5 class="fw-bold">{{ topic.name }}</h5>
+                    <p class="text-muted small">{{ topic.description|truncatewords:10 }}</p>
+                </div>
+            </div>
+            {% endfor %}           
+        </div>
+    </div>
+</section>
+{% endif %}
+
+
+<!--Statistics section-->
+{% if user.is_authenticated %}
+<section class="py-5">
+    <div class="container">
+        <div class="row text-center">
+            <div class="col-md-4">
+                <div class="card p-4">
+                    <h3 class="text-primary fw-bold">∞</h3>
+                    <p class="mb-0">Questions Answered</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card p-4">
+                    <h3 class="text-success fw-bold">24/7</h3>
+                    <p class="mb-0">Always Available</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card p-4">
+                    <h3 class="text-info fw-bold">100%</h3>
+                    <p class="mb-0">Free to Use</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<!-- CTA Section -->
+{% if not user.is_authenticated %}
+<section class="py-5 bg-primary text-white text-center">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-6">
+                <h2 class="fw-bold mb-4">Ready to Boost Your Studies?</h2>
+                <p class="lead mb-4">Join thousands of students who are already improving their grades with StudyAI</p>
+                <a href="{% url 'signup' %}" class="btn btn-light btn-lg">
+                    <i class="fas fa-rocket"></i> Start Learning Now
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+{% endif %}
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function startTopicChat(topicName) {
+    // Create new chat sesion with topic-specific message
+    fetch ('{% url "new_chat" %}')
+    .then(() => {
+        // Navigate to chat and send initial message about the topic
+        window.location.href = '{% url "new_chat" %}' + '?topic=${encodeURIComponent(topicName)}';
+    });
+
+}
+
+//add smooth scrolling for anchor lines
+document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+    anchor.addEventListener('click', function (e) {
+        e.preventDefault();
+
+        document.querySelector(this.getAttribute('href')).scrollIntoView({
+            behavior: 'smooth'
+        });
+    });
+});
+</script>
+{% endblock %}
+
+

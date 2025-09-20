@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up- Student AI Assistant</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.1.3/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            font-family:  'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .signup-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        }
+        .form-control {
+            border-radius: 10px;
+            border: 1px solid #e0e0e0;
+            padding: 12px 16px;
+        }
+        .form-control:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            border-radius: 10px;
+            padding: 12px;
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+        .password-help {
+            font-size: 0.8rem;
+            color: #6c757d;
+        }
+        .alert {
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid h-100">
+        <div class="row justify-content-center align-items-center h-100 py-4">
+            <div class="col-md-6 col-lg-5">
+                <div class="signup-card p-5">
+                    <div class="text-center mb-4">
+                        <i class="fas fa-graduation-cap text-primary" style="font-size: 3rem;"></i>
+                        <h2 class="fw-bold mt-3">Join StudyAI</h2>
+                        <p class="text-muted">Create your free account and start learning today</p>
+                    </div>
+
+                    {% if form.errors %}
+                    <div class="alert alert-danger">
+                        {% for field, errors in form.errors.items %}
+                            {% for error in errors %}
+                                <div>{{ error }}</div>
+                            {% endfor %}
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label for="id_username" class="form-label">Username</label>
+                            <input type="text" class="form-control" id="id_username" name="username"
+                                value="{{ form.username.value|default:''}}" required>
+                            <div class="form-text">Choose a unique username for your account</div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="id_password1" class="form-label">Password</label>
+                            <input type="password" class="form-control" id="id_password1" name="password1" required>
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="id_password2" class="form-label"> Confirm Password</label>
+                            <input type="password" class="form-control" id="id_password2" name="password2" required>
+                            <div class="password-help mt-2">
+                                <ul class="mb-0">
+                                    <li>Must be at least 8 characters long</li>
+                                    <li>Cannot be too similar to your username</li>
+                                    <li>Cannot be commonly used password</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary w-100 mb-3">
+                            <i class="fas fa-user-plus"></i>Create Account
+                        </button>
+
+                        <div class="text-center">
+                            <p class="mb-0">Already have an account?
+                                <a href="{% url 'login' %}" class="text-primary text-decoration-none fw-bold">Sign In here</a>
+                            </p>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Add Bootstrap classes to Django form fields
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add form-control class to all form inputs
+            const inputs = document.querySelectorAll('input[type="text"], input[type="password"]');
+            inputs.forEach(input => {
+                input.classList.add('form-control');
+            });
+        });
+
+        // Password strength indicator
+        document.getElementById("id_password1").addEventListener("input", function() {
+            const password = this.value;
+            const helpText = document.querySelector('.password-help');
+
+            if (password.length >= 8) {
+                helpText.style.color = '#28a745';
+            } else {
+                helpText.style.color = '#6c757d';
+            } 
+        });
+
+        // Password match validation
+        document.getElementById('id_password2').addEventListener('input', function() {
+            const password1 = document.getElementById('id_password1').value;
+            const password2 = this.value;
+
+            if (password2 && password1 !== password2) {
+                this.setCustomValidity('Passwords do not match');
+            } else {
+                this.setCustomValidity('');
+            }
+        });
+    </script>
+</body>
+</html>

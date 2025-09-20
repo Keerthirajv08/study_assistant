@@ -1,0 +1,441 @@
+<!-- templates/base/chat_history.html -->
+{% extends 'base.html' %}
+
+{% block title %}Chat History - Student AI Assistant{% endblock %}
+
+{% block extra_css %}
+<style>
+    .history-card {
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        cursor: pointer;
+        border: 1px solid #e0e0e0;
+    }
+    
+    .history-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        border-color: var(--primary-color);
+    }
+    
+    .session-preview {
+        color: #6c757d;
+        font-size: 0.9rem;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+    
+    .session-stats {
+        font-size: 0.8rem;
+        color: #6c757d;
+    }
+    
+    .delete-btn {
+        opacity: 0;
+        transition: opacity 0.2s ease;
+    }
+    
+    .history-card:hover .delete-btn {
+        opacity: 1;
+    }
+    
+    .empty-state {
+        text-align: center;
+        padding: 60px 20px;
+        color: #6c757d;
+    }
+    
+    .filter-tabs {
+        border-bottom: 1px solid #dee2e6;
+        margin-bottom: 30px;
+    }
+    
+    .filter-tab {
+        padding: 10px 20px;
+        border: none;
+        background: none;
+        color: #6c757d;
+        cursor: pointer;
+        border-bottom: 2px solid transparent;
+        transition: all 0.2s ease;
+    }
+    
+    .filter-tab.active {
+        color: var(--primary-color);
+        border-bottom-color: var(--primary-color);
+    }
+    
+    .search-box {
+        border-radius: 25px;
+        border: 1px solid #e0e0e0;
+        padding: 12px 20px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row">
+        <div class="col-12">
+            <!-- Header -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h2 class="fw-bold mb-1">
+                        <i class="fas fa-history text-primary"></i> Chat History
+                    </h2>
+                    <p class="text-muted mb-0">Review your previous study sessions</p>
+                </div>
+                <a href="{% url 'new_chat' %}" class="btn btn-primary">
+                    <i class="fas fa-plus"></i> New Chat
+                </a>
+            </div>
+
+            <!-- Search and Filters -->
+            <div class="card mb-4">
+                <div class="card-body">
+                    <div class="row align-items-center">
+                        <div class="col-md-6">
+                            <div class="input-group">
+                                <span class="input-group-text">
+                                    <i class="fas fa-search"></i>
+                                </span>
+                                <input type="text" class="form-control search-box" 
+                                       id="searchInput" placeholder="Search your chats...">
+                            </div>
+                        </div>
+                        <div class="col-md-6 text-md-end mt-3 mt-md-0">
+                            <div class="btn-group" role="group">
+                                <button class="filter-tab active" data-filter="all">
+                                    All Sessions
+                                </button>
+                                <button class="filter-tab" data-filter="today">
+                                    Today
+                                </button>
+                                <button class="filter-tab" data-filter="week">
+                                    This Week
+                                </button>
+                                <button class="filter-tab" data-filter="month">
+                                    This Month
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Chat Sessions -->
+            <div id="chatSessions">
+                {% if page_obj %}
+                    <div class="row" id="sessionsList">
+                        {% for session in page_obj %}
+                        <div class="col-md-6 col-lg-4 mb-4 session-item" 
+                             data-date="{{ session.updated_at|date:'Y-m-d' }}"
+                             data-title="{{ session.title|lower }}">
+                            <div class="card history-card h-100" onclick="openSession({{ session.id }})">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between align-items-start mb-3">
+                                        <h6 class="card-title fw-bold mb-0">
+                                            {{ session.title|truncatechars:40 }}
+                                        </h6>
+                                        <button class="btn btn-sm btn-outline-danger delete-btn" 
+                                                onclick="deleteSession(event, {{ session.id }})"
+                                                title="Delete Session">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                    
+                                    <!-- Session Preview -->
+                                    {% if session.messages.exists %}
+                                        <div class="session-preview mb-3">
+                                            {% for message in session.messages.all|slice:":2" %}
+                                                <div class="mb-1">
+                                                    <strong>{{ message.message_type|capfirst }}:</strong> 
+                                                    {{ message.content|truncatechars:100 }}
+                                                </div>
+                                            {% endfor %}
+                                        </div>
+                                    {% else %}
+                                        <div class="session-preview mb-3">
+                                            <em>No messages yet</em>
+                                        </div>
+                                    {% endif %}
+                                    
+                                    <!-- Session Stats -->
+                                    <div class="d-flex justify-content-between session-stats">
+                                        <span>
+                                            <i class="fas fa-comments"></i> 
+                                            {{ session.messages.count }} message{{ session.messages.count|pluralize }}
+                                        </span>
+                                        <span title="{{ session.updated_at }}">
+                                            <i class="fas fa-clock"></i> 
+                                            {{ session.updated_at|timesince }} ago
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+
+                    <!-- Pagination -->
+                    {% if page_obj.has_other_pages %}
+                    <nav aria-label="Chat history pagination">
+                        <ul class="pagination justify-content-center">
+                            {% if page_obj.has_previous %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ page_obj.previous_page_number }}">
+                                        <i class="fas fa-chevron-left"></i> Previous
+                                    </a>
+                                </li>
+                            {% endif %}
+                            
+                            {% for num in page_obj.paginator.page_range %}
+                                {% if page_obj.number == num %}
+                                    <li class="page-item active">
+                                        <span class="page-link">{{ num }}</span>
+                                    </li>
+                                {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                                    </li>
+                                {% endif %}
+                            {% endfor %}
+                            
+                            {% if page_obj.has_next %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ page_obj.next_page_number }}">
+                                        Next <i class="fas fa-chevron-right"></i>
+                                    </a>
+                                </li>
+                            {% endif %}
+                        </ul>
+                    </nav>
+                    {% endif %}
+
+                {% else %}
+                    <!-- Empty State -->
+                    <div class="empty-state">
+                        <i class="fas fa-comments" style="font-size: 4rem; opacity: 0.3;"></i>
+                        <h4 class="mt-4">No Chat History Yet</h4>
+                        <p class="mb-4">Start your first study session to see your chat history here.</p>
+                        <a href="{% url 'new_chat' %}" class="btn btn-primary btn-lg">
+                            <i class="fas fa-plus"></i> Start First Chat
+                        </a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-exclamation-triangle text-warning"></i>
+                    Confirm Delete
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to delete this chat session? This action cannot be undone.</p>
+                <div id="sessionToDelete" class="p-3 bg-light rounded">
+                    <!-- Session info will be populated here -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-danger" id="confirmDelete">
+                    <i class="fas fa-trash"></i> Delete Session
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+let sessionToDeleteId = null;
+
+// Open chat session
+function openSession(sessionId) {
+    window.location.href = `/chat/${sessionId}/`;
+}
+
+// Delete session with confirmation
+function deleteSession(event, sessionId) {
+    event.stopPropagation(); // Prevent opening the session
+    
+    sessionToDeleteId = sessionId;
+    
+    // Get session info for confirmation
+    const sessionCard = event.target.closest('.session-item');
+    const sessionTitle = sessionCard.querySelector('.card-title').textContent.trim();
+    const messageCount = sessionCard.querySelector('.session-stats span').textContent;
+    
+    document.getElementById('sessionToDelete').innerHTML = `
+        <strong>Session:</strong> ${sessionTitle}<br>
+        <strong>Messages:</strong> ${messageCount}
+    `;
+    
+    // Show confirmation modal
+    new bootstrap.Modal(document.getElementById('deleteModal')).show();
+}
+
+// Confirm deletion
+document.getElementById('confirmDelete').addEventListener('click', async function() {
+    if (!sessionToDeleteId) return;
+    
+    try {
+        const response = await fetch(`/chat/delete/${sessionToDeleteId}/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': getCookie('csrftoken'),
+                'Content-Type': 'application/json'
+            }
+        });
+        
+        if (response.ok) {
+            // Remove the session from the page
+            const sessionElement = document.querySelector(`[onclick="openSession(${sessionToDeleteId})"]`).closest('.session-item');
+            sessionElement.style.opacity = '0';
+            setTimeout(() => {
+                sessionElement.remove();
+                
+                // Check if no sessions left
+                if (document.querySelectorAll('.session-item').length === 0) {
+                    document.getElementById('sessionsList').innerHTML = `
+                        <div class="col-12">
+                            <div class="empty-state">
+                                <i class="fas fa-comments" style="font-size: 4rem; opacity: 0.3;"></i>
+                                <h4 class="mt-4">No Chat History Yet</h4>
+                                <p class="mb-4">Start your first study session to see your chat history here.</p>
+                                <a href="/chat/" class="btn btn-primary btn-lg">
+                                    <i class="fas fa-plus"></i> Start First Chat
+                                </a>
+                            </div>
+                        </div>
+                    `;
+                }
+            }, 300);
+            
+            // Close modal
+            bootstrap.Modal.getInstance(document.getElementById('deleteModal')).hide();
+            
+            // Show success message
+            showAlert('Session deleted successfully!', 'success');
+        } else {
+            showAlert('Failed to delete session. Please try again.', 'error');
+        }
+    } catch (error) {
+        showAlert('An error occurred. Please try again.', 'error');
+    }
+    
+    sessionToDeleteId = null;
+});
+
+// Search functionality
+document.getElementById('searchInput').addEventListener('input', function() {
+    const searchTerm = this.value.toLowerCase();
+    const sessions = document.querySelectorAll('.session-item');
+    
+    sessions.forEach(session => {
+        const title = session.getAttribute('data-title');
+        const content = session.textContent.toLowerCase();
+        
+        if (title.includes(searchTerm) || content.includes(searchTerm)) {
+            session.style.display = 'block';
+        } else {
+            session.style.display = 'none';
+        }
+    });
+});
+
+// Filter functionality
+document.querySelectorAll('.filter-tab').forEach(tab => {
+    tab.addEventListener('click', function() {
+        // Update active tab
+        document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
+        this.classList.add('active');
+        
+        const filter = this.getAttribute('data-filter');
+        const sessions = document.querySelectorAll('.session-item');
+        const now = new Date();
+        
+        sessions.forEach(session => {
+            const sessionDate = new Date(session.getAttribute('data-date'));
+            let show = true;
+            
+            switch(filter) {
+                case 'today':
+                    show = sessionDate.toDateString() === now.toDateString();
+                    break;
+                case 'week':
+                    const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+                    show = sessionDate >= weekAgo;
+                    break;
+                case 'month':
+                    const monthAgo = new Date(now.getFullYear(), now.getMonth() - 1, now.getDate());
+                    show = sessionDate >= monthAgo;
+                    break;
+                case 'all':
+                default:
+                    show = true;
+            }
+            
+            session.style.display = show ? 'block' : 'none';
+        });
+    });
+});
+
+// Utility functions
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+function showAlert(message, type = 'info') {
+    const alertDiv = document.createElement('div');
+    alertDiv.className = `alert alert-${type === 'error' ? 'danger' : type} alert-dismissible fade show position-fixed`;
+    alertDiv.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px;';
+    alertDiv.innerHTML = `
+        ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    `;
+    
+    document.body.appendChild(alertDiv);
+    
+    // Auto-remove after 5 seconds
+    setTimeout(() => {
+        if (alertDiv.parentNode) {
+            alertDiv.remove();
+        }
+    }, 5000);
+}
+
+// Initialize tooltips
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize Bootstrap tooltips if available
+    if (typeof bootstrap !== 'undefined' && bootstrap.Tooltip) {
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[title]'));
+        var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl);
+        });
+    }
+});
+</script>
+{% endblock %}

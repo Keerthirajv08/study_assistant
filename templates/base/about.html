@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+
+{% block title %}About- StudyAI Assistant{% endblock %}
+
+{% block content %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About - StudyAI Assistant</title>
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            font-family:  'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .container{
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            padding: 20px;
+        }
+         h1 {
+            color: #2c3e50;
+        }
+        p {
+            font-size: 1.1rem;
+            color: #555;
+        }
+        ul {
+            margin-top: 15px;
+        }
+        li {
+            margin: 8px 0;
+            font-size: 1rem;
+        }
+        footer {
+            margin-top: 30px;
+            font-size: 0.9rem;
+            color: #777;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>About StudyAI Assistant</h1>
+        <p>StudyAI Assistant is a web application that provides instant help with homework, study tips, and educational guidance powered by AI.</p>
+        <h2>Features</h2>
+        <ul>
+            <li>Instant answers to study questions</li>
+            <li>Personalized study tips and strategies</li>
+            <li>24/7 AI-powered assistance</li>
+            <li>Save and track your learning journey</li>
+        </ul>
+        <h2>Get Started</h2>
+        <p>Sign up for an account and start exploring StudyAI Assistant today!</p>
+        
+    </div>
+</body>
+</html>
+{% endblock %}
