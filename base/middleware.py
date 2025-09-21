@@ -1,4 +1,6 @@
-class ThemeMiddleware:
+from django.utils.deprecation import MiddlewareMixin
+
+class ThemeMiddleware(MiddlewareMixin):
     """Middleware to handle theme preferences"""
 
     def __init__(self, get_response):

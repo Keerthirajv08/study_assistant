@@ -24,7 +24,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.getenv('1X_sSXNUePqtGc4A2bfPGUel_G5qtLBGTepeBq_dZ9FQNKJRHtF3z6B2aAyJf8fRWOk', 'django-insecure-c&^g6u&#chw0u3+95j6(#%vt#-0d%fw!oy6d$ijl$q@+g^10=r')
+SECRET_KEY = os.getenv('1X_sSXNUePqtGc4A2bfPGUel_G5qtLBGTepeBq_dZ9FQNKJRHtF3z6B2aAyJf8fRWOk', default='django-insecure-c&^g6u&#chw0u3+95j6(#%vt#-0d%fw!oy6d$ijl$q@+g^10=r')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv('DEBUG',"False") == "True"
@@ -57,7 +57,6 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'base.middleware.ThemeMiddleware',
-    
 ]
 
 ROOT_URLCONF = 'study_assistant.urls'
@@ -88,7 +87,6 @@ DATABASES = {
     "default": dj_database_url.config(
         default=f"sqlite:///{BASE_DIR}/db.sqlite3",
         conn_max_age=600,
-        conn_health_checks=True,
     )
 }
 
@@ -138,6 +136,9 @@ STATIC_ROOT = BASE_DIR / 'staticfiles'  #BASE_DIR / 'staticfiles'
 
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
@@ -147,15 +148,5 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 #Session configuration for theme persistance'
 SESSION_COOKIE_AGE = 31536000       #1 year
 SESSION_SAVE_EVERY_REQUEST = True
-
-#Railway specific settings
-if 'RAILWAY_ENVIRONMENT' in os.environ:
-    #Production settings for railway
-    SECURE_SSL_REDIRECT = True
-    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
-    SECURE_HSTS_SECONDS = 31536000
-    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
-    SECURE_HSTS_PRELOAD = True
-
 
 
