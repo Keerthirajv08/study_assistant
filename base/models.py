@@ -31,7 +31,7 @@ class ChatMessage(models.Model):
         ordering = ['timestamp']        #oldest first for conversation flow
 
     def __str__(self):
-        return f"{self.message_type} - {self.content[:50]}..."
+        return f"{self.message_type}: {self.content[:50]}..."
     
 class StudyTopic(models.Model):
     """Model to story topics/subjects for each user"""

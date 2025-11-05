@@ -15,7 +15,6 @@ import dj_database_url
 from pathlib import Path
 from decouple import config
 
-
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -27,16 +26,20 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.getenv('1X_sSXNUePqtGc4A2bfPGUel_G5qtLBGTepeBq_dZ9FQNKJRHtF3z6B2aAyJf8fRWOk', default='django-insecure-c&^g6u&#chw0u3+95j6(#%vt#-0d%fw!oy6d$ijl$q@+g^10=r')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.getenv('DEBUG',"False") == "True"
 
-ALLOWED_HOSTS = [ '127.0.0.1', 'localhost']
-RENDER_EXTERNAL_HOSTNAME = os.getenv("RENDER_EXTERNAL_HOSTNAME")  # Render provides this automatically
-if RENDER_EXTERNAL_HOSTNAME:
-    ALLOWED_HOSTS.append(RENDER_EXTERNAL_HOSTNAME)
+# Check if running on Render
+IS_RENDER = os.getenv('RENDER') == 'True'  # Render sets this automatically
 
+if IS_RENDER:
+    # Production settings
+    DEBUG = False
+    ALLOWED_HOSTS = [os.getenv('study-assistant-2tdy.onrender.com')]
+else:
+    # Local development settings
+    DEBUG = True
+    ALLOWED_HOSTS = ['127.0.0.1', 'localhost', '127.0.0.1:8000', 'localhost:8000']
 
 # Application definition
-
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -48,6 +51,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -64,7 +68,7 @@ ROOT_URLCONF = 'study_assistant.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [BASE_DIR / 'templates'],
+        'DIRS': [os.path.join(BASE_DIR , 'templates')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -77,7 +81,6 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'study_assistant.wsgi.application'
 
 
 # Database
@@ -85,11 +88,10 @@ WSGI_APPLICATION = 'study_assistant.wsgi.application'
 
 DATABASES = {
     "default": dj_database_url.config(
-        default=f"sqlite:///{BASE_DIR}/db.sqlite3",
-        conn_max_age=600,
+        default="sqlite:///db.sqlite3",
+        conn_max_age=600
     )
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
@@ -109,6 +111,7 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+DJANGO_SETTINGS_MODULE = 'study_assistant.settings'
 
 # Internationalization
 # https://docs.djangoproject.com/en/5.2/topics/i18n/
@@ -121,18 +124,14 @@ USE_I18N = True
 
 USE_TZ = True
 
-
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
-
-
-
 STATIC_URL = '/static/'
-STATICFILES_DIRS = [
-    BASE_DIR / 'static', 
-]
-STATIC_ROOT = BASE_DIR / 'staticfiles'  #BASE_DIR / 'staticfiles'
+#STATICFILES_DIRS = [
+#    BASE_DIR / 'static', 
+#]
+STATIC_ROOT = os.path.join(BASE_DIR , 'staticfiles' ) #BASE_DIR / 'staticfiles'
 
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
@@ -143,7 +142,6 @@ MEDIA_ROOT = BASE_DIR / 'media'
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-
 
 #Session configuration for theme persistance'
 SESSION_COOKIE_AGE = 31536000       #1 year

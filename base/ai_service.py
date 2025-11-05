@@ -3,6 +3,7 @@ import json
 from django.conf import settings
 
 
+
 class AIService:
     """Service class to handle AI interactions
     we'll use a free API  servie for educational responses"""
@@ -11,8 +12,10 @@ class AIService:
         #Using a free API service (Hugging Face Inference API as example)
         #You can replace this with your own AI service
         self.base_url = "https://api-inference.huggingface.co/models/"
-        self.model = "microsoft/DialoGPT-large"     #Free conversational model
+        self.model = "microsoft/DialoGPT-large"     #Free conversational model  
 
+
+    
     def get_study_response(self, question, context=""):
         """Get AI response for study-related questions
         
@@ -30,7 +33,7 @@ class AIService:
             response = self._call_ai_api(study_prompt)
 
             if response:
-                return self._call_ai_api(study_prompt)
+                return self._format_response(response)
             else:
                 #Fallback to rule-based response
                 return self._get_fallback_response(question)
@@ -58,7 +61,9 @@ Response: """
     def _call_ai_gpi(self, prompt):
         """Make API call to AI service
         Note: This is a simplified version. In production, you'd handle authentication, rate limiting, etc.
-        """
+        
+        print("Calling AI service...",  prompt)
+        return "Sample response from AI service" """
 
         try:
             #Simplified AI response - you can integrate with any AI API
