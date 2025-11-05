@@ -85,8 +85,9 @@ TEMPLATES = [
 
 DATABASES = {
     "default": dj_database_url.config(
-        default="sqlite:///db.sqlite3",
-        conn_max_age=600
+        default=os.getenv("postgresql://study_assistant_buzp_user:c8zwlltVGGhI5CWFj58syg5MqXPV38Gv@dpg-d37bpq7diees73a4t19g-a.oregon-postgres.render.com/study_assistant_buzp"),
+        conn_max_age=600,
+        ssl_require=True
     )
 }
 
