@@ -148,3 +148,18 @@ SESSION_COOKIE_AGE = 31536000       #1 year
 SESSION_SAVE_EVERY_REQUEST = True
 
 
+import sys
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+            'stream': sys.stdout,
+        },
+    },
+    'root': {
+        'handlers': ['console'],
+        'level': 'DEBUG',
+    },
+}
