@@ -2,7 +2,9 @@ services:
   - type: web
     name: study-ai-assistant
     env: python
-    buildCommand: pip install -r requirements.txt && python manage.py collectstatic --noinput
+    buildCommand: python manage.py migrate &&
+      pip install -r requirements.txt &&
+      python manage.py collectstatic --noinput
     startCommand:  study_assistant.wsgi.application 
     envVars:
       - key: 1X_sSXNUePqtGc4A2bfPGUel_G5qtLBGTepeBq_dZ9FQNKJRHtF3z6B2aAyJf8fRWOk

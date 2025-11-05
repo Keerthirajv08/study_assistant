@@ -83,13 +83,21 @@ TEMPLATES = [
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
-DATABASES = {
-    "default": dj_database_url.config(
-        default=os.getenv("postgresql://study_assistant_buzp_user:c8zwlltVGGhI5CWFj58syg5MqXPV38Gv@dpg-d37bpq7diees73a4t19g-a.oregon-postgres.render.com/study_assistant_buzp"),
-        conn_max_age=600,
-        ssl_require=True
-    )
-}
+
+if os.getenv('RENDER'):  # Render environment
+    DATABASES = {
+        'default': dj_database_url.config(
+            conn_max_age=600,
+            ssl_require=True
+        )
+    }
+else:  # Local development fallback
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        }
+    }
 
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
