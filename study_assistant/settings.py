@@ -27,17 +27,14 @@ SECRET_KEY = os.getenv('1X_sSXNUePqtGc4A2bfPGUel_G5qtLBGTepeBq_dZ9FQNKJRHtF3z6B2
 
 # SECURITY WARNING: don't run with debug turned on in production!
 
-# Check if running on Render
-IS_RENDER = os.getenv('RENDER') == 'True'  # Render sets this automatically
+DEBUG = False
 
-if IS_RENDER:
-    # Production settings
-    DEBUG = False
-    ALLOWED_HOSTS = [os.getenv('study-assistant-2tdy.onrender.com')]
-else:
-    # Local development settings
-    DEBUG = True
-    ALLOWED_HOSTS = ['127.0.0.1', 'localhost', '127.0.0.1:8000', 'localhost:8000']
+ALLOWED_HOSTS = [
+    'study-assistant-2tdy.onrender.com', 
+    'localhost', 
+    '127.0.0.1'
+]
+
 
 # Application definition
 INSTALLED_APPS = [
