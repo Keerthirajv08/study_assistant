@@ -9,11 +9,11 @@ services:
         sync: false
       - key: DEBUG
         value: False
-      - key: postgresql://study_assistant_buzp_user:c8zwlltVGGhI5CWFj58syg5MqXPV38Gv@dpg-d37bpq7diees73a4t19g-a/study_assistant_buzp
+      - key: postgresql://study_assistant_5m10_user:5fN4t2170pG8huABNrEkgT6cktfDR1zn@dpg-d45ic8s9c44c73c4cr7g-a/study_assistant_5m10
         fromDatabase:
-          name: study-ai-db
+          name: study_assistant_5m10_user
           property: connectionString
 databases:
-  - name: study-ai-db
+  - name: study_assistant_5m10_user
     plan: free
 
