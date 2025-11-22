@@ -11,7 +11,6 @@ import json
 from .models import ChatSession, ChatMessage, StudyTopic
 from .ai_service import AIService
 
-
 # Create your views here.
 
 def home(request):

@@ -29,7 +29,7 @@ class AIService:
 
         try:
             #Try to get response from AI service
-            response = self._call_ai_gpi(study_prompt)
+            response = self._call_ai_api(study_prompt)
 
             if response:
                 return self._format_response(response)
@@ -57,7 +57,7 @@ Please:
 Response: """
         return prompt
 
-    def _call_ai_gpi(self, prompt):
+    def _call_ai_api(self, prompt):
         """Make API call to AI service
         Note: This is a simplified version. In production, you'd handle authentication, rate limiting, etc.
         
