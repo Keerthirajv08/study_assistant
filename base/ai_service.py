@@ -10,7 +10,6 @@ class AIService:
 
     def __init__(self):
         #Using a free API service (Hugging Face Inference API as example)
-        #You can replace this with your own AI service
         self.base_url = "https://api-inference.huggingface.co/models/"
         self.model = "microsoft/DialoGPT-large"     #Free conversational model  
 
@@ -30,7 +29,7 @@ class AIService:
 
         try:
             #Try to get response from AI service
-            response = self._call_ai_api(study_prompt)
+            response = self._call_ai_gpi(study_prompt)
 
             if response:
                 return self._format_response(response)

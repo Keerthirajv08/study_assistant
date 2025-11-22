@@ -11,7 +11,7 @@ services:
         sync: false
       - key: DEBUG
         value: False
-      - key: postgresql://study_assistant_5m10_user:5fN4t2170pG8huABNrEkgT6cktfDR1zn@dpg-d45ic8s9c44c73c4cr7g-a/study_assistant_5m10
+      - key: DATABASE_URL
         fromDatabase:
           name: study_assistant_5m10_user
           property: connectionString

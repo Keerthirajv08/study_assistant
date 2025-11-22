@@ -92,7 +92,7 @@ def send_message(request):
             recent_messages = chat_session.messages.filter(message_type='user').order_by('-timestamp')[:3]
             context = " ".join([msg.content for msg in reversed(recent_messages)])
 
-            ai_response = ai_service.get_study_response(context, user_message)
+            ai_response = ai_service.get_study_response(user_message, context)
 
             #Save AI response
             ai_msg = ChatMessage.objects.create(
@@ -106,17 +106,17 @@ def send_message(request):
 
             return JsonResponse({
                 'success': True,
-                'user_message': user_msg.id,
+                'user_message': {
                     'id': user_msg.id,
                     'content': user_msg.content,
                     'timestamp': user_msg.timestamp.strftime('%H:%M')
             },
-            {'ai_message'
+            'ai_message': {
                 'id' : ai_msg.id,
                 'content': user_msg.content,
                 'timestamp': user_msg.timestamp.strftime('%H:%M')                
             },
-            {'session_title': chat_session.title
+            'session_title': chat_session.title
         })
 
         except json.JSONDecodeError:
